@@ -58,3 +58,30 @@ eureka:
 java -jar -Dserver.port=9004 ./build/libs/user-service-0.0.1-SNAPSHOT.jar
 ```
 ![img_5.png](./md/image/img_5.png)
+
+
+## Random port Multi client 기동
+1. application.yml
+```yaml
+server:
+  port: 0 # Random port 
+```
+2. run user-service 1, 2
+3. discovery service 확인
+   ![img_6.png](./md/image/img_6.png)
+   * 반영이 1개만 되어있다.(기대값은 랜덤포트 2개)
+     * user-service 이름 문제
+     * 127.0.0.1:user-service:0
+     * ip:name:port
+       * 여기서 port 가 동적 할당 포트가 아닌 applicatiom.yml server.port 에 설정한 0 이라는 포트가 적용됨
+       * 그러므로 여러개를 키게 되더라도 이름이 같게 될 수 밖에 없다
+   * 해결책
+     * application.yml 에 각각의 client 서버를 구분할 수 있도록 추가정보를 입력
+4. application.yml 에 user-service instaince id 추가
+```yaml
+eureka:
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+```
+5. discovery service 확인
+![img_7.png](./md/image/img_7.png)
